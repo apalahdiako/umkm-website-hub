@@ -14,71 +14,214 @@ export type Database = {
   }
   public: {
     Tables: {
+      categories: {
+        Row: {
+          created_at: string
+          icon: string | null
+          id: string
+          nama: string
+        }
+        Insert: {
+          created_at?: string
+          icon?: string | null
+          id?: string
+          nama: string
+        }
+        Update: {
+          created_at?: string
+          icon?: string | null
+          id?: string
+          nama?: string
+        }
+        Relationships: []
+      }
+      order_items: {
+        Row: {
+          created_at: string
+          harga: number
+          id: string
+          nama_produk: string
+          order_id: string
+          product_id: string | null
+          qty: number
+          subtotal: number
+        }
+        Insert: {
+          created_at?: string
+          harga?: number
+          id?: string
+          nama_produk: string
+          order_id: string
+          product_id?: string | null
+          qty?: number
+          subtotal?: number
+        }
+        Update: {
+          created_at?: string
+          harga?: number
+          id?: string
+          nama_produk?: string
+          order_id?: string
+          product_id?: string | null
+          qty?: number
+          subtotal?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_status_logs: {
+        Row: {
+          alasan: string | null
+          changed_by: string | null
+          changed_by_role: Database["public"]["Enums"]["app_role"] | null
+          created_at: string
+          id: string
+          order_id: string
+          status_dari: Database["public"]["Enums"]["order_status"] | null
+          status_ke: Database["public"]["Enums"]["order_status"]
+        }
+        Insert: {
+          alasan?: string | null
+          changed_by?: string | null
+          changed_by_role?: Database["public"]["Enums"]["app_role"] | null
+          created_at?: string
+          id?: string
+          order_id: string
+          status_dari?: Database["public"]["Enums"]["order_status"] | null
+          status_ke: Database["public"]["Enums"]["order_status"]
+        }
+        Update: {
+          alasan?: string | null
+          changed_by?: string | null
+          changed_by_role?: Database["public"]["Enums"]["app_role"] | null
+          created_at?: string
+          id?: string
+          order_id?: string
+          status_dari?: Database["public"]["Enums"]["order_status"] | null
+          status_ke?: Database["public"]["Enums"]["order_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_status_logs_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
-          address: string
+          address: string | null
+          alasan: string | null
+          catatan: string | null
           courier: string | null
           created_at: string
-          customer_name: string
-          customer_phone: string
+          customer_id: string | null
+          customer_name: string | null
+          customer_phone: string | null
           destination_id: string | null
           destination_label: string | null
+          diambil_driver_at: string | null
+          diambil_kasir_at: string | null
+          driver_id: string | null
           id: string
           items: Json
+          kasir_id: string | null
+          metode_bayar: string
           order_code: string
           paid_at: string | null
           payment_reference: string | null
           payment_status: string
           qris_image_url: string | null
           qris_payload: string | null
+          selesai_at: string | null
           service: string | null
           shipping_cost: number
+          siap_antar_at: string | null
+          status: Database["public"]["Enums"]["order_status"]
           subtotal: number
           total: number
           updated_at: string
           weight_grams: number
         }
         Insert: {
-          address: string
+          address?: string | null
+          alasan?: string | null
+          catatan?: string | null
           courier?: string | null
           created_at?: string
-          customer_name: string
-          customer_phone: string
+          customer_id?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
           destination_id?: string | null
           destination_label?: string | null
+          diambil_driver_at?: string | null
+          diambil_kasir_at?: string | null
+          driver_id?: string | null
           id?: string
           items?: Json
+          kasir_id?: string | null
+          metode_bayar?: string
           order_code: string
           paid_at?: string | null
           payment_reference?: string | null
           payment_status?: string
           qris_image_url?: string | null
           qris_payload?: string | null
+          selesai_at?: string | null
           service?: string | null
           shipping_cost?: number
+          siap_antar_at?: string | null
+          status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number
           total?: number
           updated_at?: string
           weight_grams?: number
         }
         Update: {
-          address?: string
+          address?: string | null
+          alasan?: string | null
+          catatan?: string | null
           courier?: string | null
           created_at?: string
-          customer_name?: string
-          customer_phone?: string
+          customer_id?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
           destination_id?: string | null
           destination_label?: string | null
+          diambil_driver_at?: string | null
+          diambil_kasir_at?: string | null
+          driver_id?: string | null
           id?: string
           items?: Json
+          kasir_id?: string | null
+          metode_bayar?: string
           order_code?: string
           paid_at?: string | null
           payment_reference?: string | null
           payment_status?: string
           qris_image_url?: string | null
           qris_payload?: string | null
+          selesai_at?: string | null
           service?: string | null
           shipping_cost?: number
+          siap_antar_at?: string | null
+          status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number
           total?: number
           updated_at?: string
@@ -86,15 +229,176 @@ export type Database = {
         }
         Relationships: []
       }
+      products: {
+        Row: {
+          aktif: boolean
+          category_id: string | null
+          created_at: string
+          deskripsi: string
+          foto_url: string | null
+          harga: number
+          id: string
+          nama: string
+          rating: number
+          restaurant: string
+          stok: number
+          updated_at: string
+        }
+        Insert: {
+          aktif?: boolean
+          category_id?: string | null
+          created_at?: string
+          deskripsi?: string
+          foto_url?: string | null
+          harga?: number
+          id?: string
+          nama: string
+          rating?: number
+          restaurant?: string
+          stok?: number
+          updated_at?: string
+        }
+        Update: {
+          aktif?: boolean
+          category_id?: string | null
+          created_at?: string
+          deskripsi?: string
+          foto_url?: string | null
+          harga?: number
+          id?: string
+          nama?: string
+          rating?: number
+          restaurant?: string
+          stok?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          aktif: boolean
+          created_at: string
+          id: string
+          nama: string
+          phone: string | null
+          saldo: number
+          status_online: boolean
+          updated_at: string
+        }
+        Insert: {
+          aktif?: boolean
+          created_at?: string
+          id: string
+          nama?: string
+          phone?: string | null
+          saldo?: number
+          status_online?: boolean
+          updated_at?: string
+        }
+        Update: {
+          aktif?: boolean
+          created_at?: string
+          id?: string
+          nama?: string
+          phone?: string | null
+          saldo?: number
+          status_online?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wallet_logs: {
+        Row: {
+          created_at: string
+          id: string
+          jenis: string
+          jumlah: number
+          keterangan: string | null
+          order_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          jenis: string
+          jumlah: number
+          keterangan?: string | null
+          order_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          jenis?: string
+          jumlah?: number
+          keterangan?: string | null
+          order_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_logs_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "customer" | "kasir" | "driver" | "admin"
+      order_status:
+        | "menunggu"
+        | "diproses"
+        | "siap_antar"
+        | "diambil_driver"
+        | "diantar"
+        | "selesai"
+        | "ditolak"
+        | "gagal_antar"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -221,6 +525,18 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["customer", "kasir", "driver", "admin"],
+      order_status: [
+        "menunggu",
+        "diproses",
+        "siap_antar",
+        "diambil_driver",
+        "diantar",
+        "selesai",
+        "ditolak",
+        "gagal_antar",
+      ],
+    },
   },
 } as const
