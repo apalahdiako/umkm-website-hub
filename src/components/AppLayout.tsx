@@ -1,3 +1,4 @@
+import { Menu } from "lucide-react";
 import { useState } from "react";
 import { Sidebar } from "./Sidebar";
 import { BottomNav } from "./BottomNav";
@@ -13,6 +14,13 @@ export function AppLayout({ children }: AppLayoutProps) {
     <div className="min-h-screen bg-[#f5f6fa] text-brand">
       <Sidebar open={sidebarOpen} close={() => setSidebarOpen(false)} />
       <main className="min-h-screen lg:pl-72">
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="fixed left-4 top-4 z-30 grid size-10 place-items-center rounded-2xl bg-white shadow-sm ring-1 ring-gray-100 lg:hidden"
+          aria-label="Open menu"
+        >
+          <Menu size={18} className="text-gray-600" />
+        </button>
         {children}
       </main>
       <BottomNav />
