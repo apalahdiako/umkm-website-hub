@@ -17,6 +17,7 @@ import { Route as OrderRouteImport } from './routes/order'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as WalletRouteImport } from './routes/wallet'
 import { Route as DetailIdRouteImport } from './routes/detail.$id'
+import { Route as ApiPublicWebhookPaymentRouteImport } from './routes/api/public/webhook/payment'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -58,6 +59,11 @@ const DetailIdRoute = DetailIdRouteImport.update({
   path: '/detail/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWebhookPaymentRoute = ApiPublicWebhookPaymentRouteImport.update({
+  id: '/api/public/webhook/payment',
+  path: '/api/public/webhook/payment',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/wallet': typeof WalletRoute
   '/detail/$id': typeof DetailIdRoute
+  '/api/public/webhook/payment': typeof ApiPublicWebhookPaymentRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/wallet': typeof WalletRoute
   '/detail/$id': typeof DetailIdRoute
+  '/api/public/webhook/payment': typeof ApiPublicWebhookPaymentRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/wallet': typeof WalletRoute
   '/detail/$id': typeof DetailIdRoute
+  '/api/public/webhook/payment': typeof ApiPublicWebhookPaymentRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/wallet'
     | '/detail/$id'
+    | '/api/public/webhook/payment'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/wallet'
     | '/detail/$id'
+    | '/api/public/webhook/payment'
   id:
     | '__root__'
     | '/'
@@ -121,6 +132,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/wallet'
     | '/detail/$id'
+    | '/api/public/webhook/payment'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -132,6 +144,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   WalletRoute: typeof WalletRoute
   DetailIdRoute: typeof DetailIdRoute
+  ApiPublicWebhookPaymentRoute: typeof ApiPublicWebhookPaymentRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -192,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DetailIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/webhook/payment': {
+      id: '/api/public/webhook/payment'
+      path: '/api/public/webhook/payment'
+      fullPath: '/api/public/webhook/payment'
+      preLoaderRoute: typeof ApiPublicWebhookPaymentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -204,6 +224,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   WalletRoute: WalletRoute,
   DetailIdRoute: DetailIdRoute,
+  ApiPublicWebhookPaymentRoute: ApiPublicWebhookPaymentRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
