@@ -75,7 +75,7 @@ export const createOrder = createServerFn({ method: "POST" })
         throw new Error(`Gagal membuat QRIS [${res.status}]: ${body}`);
       }
       const json = JSON.parse(body) as Record<string, any>;
-      const payload = json.data ?? json;
+      const payload = (json["data"] ?? json) as Record<string, any>;
       qrisPayload = payload.qris_string ?? payload.qr_string ?? null;
       qrisImageUrl = payload.qris_url ?? payload.qr_image_url ?? null;
       paymentReference = payload.reference ?? payload.id ?? orderCode;
