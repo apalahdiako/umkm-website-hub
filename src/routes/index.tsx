@@ -3,7 +3,6 @@ import {
   Bell,
   ChevronRight,
   MapPin,
-  Menu,
   Search,
   ShoppingCart,
   SlidersHorizontal,
@@ -41,7 +40,6 @@ export const Route = createFileRoute("/")({
 
 function DashboardPage() {
   const [activeCategory, setActiveCategory] = useState("All");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const { favorites } = useStoreState();
   const { toggleFavorite, addToCart } = useStoreActions();
@@ -74,13 +72,6 @@ function DashboardPage() {
 
       {/* Desktop greeting */}
       <div className="hidden lg:block px-8 pt-8 pb-2">
-        <button
-          onClick={() => setSidebarOpen(true)}
-          className="mb-3 inline-flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm font-medium text-brand shadow-sm ring-1 ring-gray-100 lg:hidden"
-        >
-          <Menu size={16} />
-          Menu
-        </button>
         <h1 className="font-display text-3xl font-bold text-brand">
           Hey, Samantha 👋
         </h1>
