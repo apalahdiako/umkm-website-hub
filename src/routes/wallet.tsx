@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CreditCard, Menu, Wallet } from "lucide-react";
+import { CreditCard, Wallet } from "lucide-react";
 import { useState } from "react";
 import { AppLayout } from "@/components/AppLayout";
 import { useStoreActions, useStoreState } from "@/lib/store";
@@ -21,7 +21,6 @@ export const Route = createFileRoute("/wallet")({
 });
 
 function WalletPage() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { balance } = useStoreState();
   const { topUp } = useStoreActions();
   const [selected, setSelected] = useState(100000);
@@ -34,18 +33,10 @@ function WalletPage() {
 
   return (
     <AppLayout>
-      <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-gray-100 bg-white/95 px-5 backdrop-blur lg:px-8">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="grid size-10 place-items-center rounded-2xl bg-gray-100 transition hover:bg-gray-200 lg:hidden"
-          >
-            <Menu size={20} />
-          </button>
-          <h1 className="font-display text-2xl font-bold text-brand">
-            Bills & Wallet
-          </h1>
-        </div>
+      <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-gray-100 bg-white/95 px-5 pl-16 backdrop-blur lg:px-8">
+        <h1 className="font-display text-2xl font-bold text-brand">
+          Bills & Wallet
+        </h1>
       </header>
 
       <div className="px-5 pb-28 pt-5 lg:px-8 lg:pb-10">

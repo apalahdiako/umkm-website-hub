@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Menu, Settings as SettingsIcon } from "lucide-react";
-import { useState } from "react";
+import { Settings as SettingsIcon } from "lucide-react";
 import { AppLayout } from "@/components/AppLayout";
 
 export const Route = createFileRoute("/settings")({
@@ -18,8 +17,6 @@ export const Route = createFileRoute("/settings")({
 });
 
 function SettingsPage() {
-  const [sidebarOpen] = useState(false);
-
   return (
     <AppLayout>
       <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-gray-100 bg-white/95 px-5 pl-16 backdrop-blur lg:px-8">

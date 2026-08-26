@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Menu, PackageCheck } from "lucide-react";
-import { useState } from "react";
+import { PackageCheck } from "lucide-react";
 import { AppLayout } from "@/components/AppLayout";
 
 export const Route = createFileRoute("/history")({
@@ -18,8 +17,6 @@ export const Route = createFileRoute("/history")({
 });
 
 function HistoryPage() {
-  const [sidebarOpen] = useState(false);
-
   return (
     <AppLayout>
       <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-gray-100 bg-white/95 px-5 pl-16 backdrop-blur lg:px-8">
