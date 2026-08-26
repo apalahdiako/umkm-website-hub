@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ChevronLeft, MapPin, Menu, Minus, Plus, Trash2 } from "lucide-react";
+import { ChevronLeft, MapPin, Minus, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { AppLayout } from "@/components/AppLayout";
 import { useStoreActions, useStoreState } from "@/lib/store";
@@ -19,7 +19,6 @@ export const Route = createFileRoute("/checkout")({
 });
 
 function CheckoutPage() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const { cart, balance } = useStoreState();
   const { updateQty, removeFromCart, clearCart, pay } = useStoreActions();
@@ -40,16 +39,8 @@ function CheckoutPage() {
 
   return (
     <AppLayout>
-      <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-gray-100 bg-white/95 px-5 backdrop-blur lg:px-8">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="grid size-10 place-items-center rounded-2xl bg-gray-100 transition hover:bg-gray-200 lg:hidden"
-          >
-            <Menu size={20} />
-          </button>
-          <h1 className="font-display text-2xl font-bold text-brand">Checkout</h1>
-        </div>
+      <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-gray-100 bg-white/95 px-5 pl-16 backdrop-blur lg:px-8">
+        <h1 className="font-display text-2xl font-bold text-brand">Checkout</h1>
       </header>
 
       <div className="mx-auto grid max-w-6xl gap-6 px-5 py-6 lg:px-8 lg:grid-cols-[1fr_360px]">
