@@ -50,7 +50,7 @@ export function FoodCard({ food, isFav, onFav, onAdd, onDetail }: FoodCardProps)
         <div className="absolute bottom-3 left-3 flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 backdrop-blur-sm shadow-sm">
           <Star size={11} className="fill-accent-yellow text-accent-yellow" />
           <span className="text-xs font-bold text-brand">{food.rating}</span>
-          <span className="text-[10px] text-gray-500">({food.reviews.toLocaleString()})</span>
+          <span className="text-[10px] text-gray-500">({food.reviews.toLocaleString("en-US")})</span>
         </div>
       </div>
 
