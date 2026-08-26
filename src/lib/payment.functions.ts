@@ -76,9 +76,9 @@ export const createOrder = createServerFn({ method: "POST" })
       }
       const json = JSON.parse(body) as Record<string, any>;
       const payload = (json["data"] ?? json) as Record<string, any>;
-      qrisPayload = payload.qris_string ?? payload.qr_string ?? null;
-      qrisImageUrl = payload.qris_url ?? payload.qr_image_url ?? null;
-      paymentReference = payload.reference ?? payload.id ?? orderCode;
+      qrisPayload = (payload["qris_string"] ?? payload["qr_string"] ?? null) as string | null;
+      qrisImageUrl = (payload["qris_url"] ?? payload["qr_image_url"] ?? null) as string | null;
+      paymentReference = String(payload["reference"] ?? payload["id"] ?? orderCode);
     }
 
     const { error } = await supabaseAdmin.from("orders").insert({
