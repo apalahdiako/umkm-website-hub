@@ -12,7 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as FavoritesRouteImport } from './routes/favorites'
+import { Route as HistoryRouteImport } from './routes/history'
 import { Route as OrderRouteImport } from './routes/order'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as WalletRouteImport } from './routes/wallet'
 import { Route as DetailIdRouteImport } from './routes/detail.$id'
 
@@ -31,9 +33,19 @@ const FavoritesRoute = FavoritesRouteImport.update({
   path: '/favorites',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HistoryRoute = HistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrderRoute = OrderRouteImport.update({
   id: '/order',
   path: '/order',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WalletRoute = WalletRouteImport.update({
@@ -51,7 +63,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
   '/favorites': typeof FavoritesRoute
+  '/history': typeof HistoryRoute
   '/order': typeof OrderRoute
+  '/settings': typeof SettingsRoute
   '/wallet': typeof WalletRoute
   '/detail/$id': typeof DetailIdRoute
 }
@@ -59,7 +73,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
   '/favorites': typeof FavoritesRoute
+  '/history': typeof HistoryRoute
   '/order': typeof OrderRoute
+  '/settings': typeof SettingsRoute
   '/wallet': typeof WalletRoute
   '/detail/$id': typeof DetailIdRoute
 }
@@ -68,22 +84,41 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
   '/favorites': typeof FavoritesRoute
+  '/history': typeof HistoryRoute
   '/order': typeof OrderRoute
+  '/settings': typeof SettingsRoute
   '/wallet': typeof WalletRoute
   '/detail/$id': typeof DetailIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/checkout' | '/favorites' | '/order' | '/wallet' | '/detail/$id'
+    | '/'
+    | '/checkout'
+    | '/favorites'
+    | '/history'
+    | '/order'
+    | '/settings'
+    | '/wallet'
+    | '/detail/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/checkout' | '/favorites' | '/order' | '/wallet' | '/detail/$id'
+  to:
+    | '/'
+    | '/checkout'
+    | '/favorites'
+    | '/history'
+    | '/order'
+    | '/settings'
+    | '/wallet'
+    | '/detail/$id'
   id:
     | '__root__'
     | '/'
     | '/checkout'
     | '/favorites'
+    | '/history'
     | '/order'
+    | '/settings'
     | '/wallet'
     | '/detail/$id'
   fileRoutesById: FileRoutesById
@@ -92,7 +127,9 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CheckoutRoute: typeof CheckoutRoute
   FavoritesRoute: typeof FavoritesRoute
+  HistoryRoute: typeof HistoryRoute
   OrderRoute: typeof OrderRoute
+  SettingsRoute: typeof SettingsRoute
   WalletRoute: typeof WalletRoute
   DetailIdRoute: typeof DetailIdRoute
 }
@@ -120,11 +157,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FavoritesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/history': {
+      id: '/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof HistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/order': {
       id: '/order'
       path: '/order'
       fullPath: '/order'
       preLoaderRoute: typeof OrderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/wallet': {
@@ -148,7 +199,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CheckoutRoute: CheckoutRoute,
   FavoritesRoute: FavoritesRoute,
+  HistoryRoute: HistoryRoute,
   OrderRoute: OrderRoute,
+  SettingsRoute: SettingsRoute,
   WalletRoute: WalletRoute,
   DetailIdRoute: DetailIdRoute,
 }
