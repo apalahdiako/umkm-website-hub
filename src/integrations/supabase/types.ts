@@ -14,7 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      orders: {
+        Row: {
+          address: string
+          courier: string | null
+          created_at: string
+          customer_name: string
+          customer_phone: string
+          destination_id: string | null
+          destination_label: string | null
+          id: string
+          items: Json
+          order_code: string
+          paid_at: string | null
+          payment_reference: string | null
+          payment_status: string
+          qris_image_url: string | null
+          qris_payload: string | null
+          service: string | null
+          shipping_cost: number
+          subtotal: number
+          total: number
+          updated_at: string
+          weight_grams: number
+        }
+        Insert: {
+          address: string
+          courier?: string | null
+          created_at?: string
+          customer_name: string
+          customer_phone: string
+          destination_id?: string | null
+          destination_label?: string | null
+          id?: string
+          items?: Json
+          order_code: string
+          paid_at?: string | null
+          payment_reference?: string | null
+          payment_status?: string
+          qris_image_url?: string | null
+          qris_payload?: string | null
+          service?: string | null
+          shipping_cost?: number
+          subtotal?: number
+          total?: number
+          updated_at?: string
+          weight_grams?: number
+        }
+        Update: {
+          address?: string
+          courier?: string | null
+          created_at?: string
+          customer_name?: string
+          customer_phone?: string
+          destination_id?: string | null
+          destination_label?: string | null
+          id?: string
+          items?: Json
+          order_code?: string
+          paid_at?: string | null
+          payment_reference?: string | null
+          payment_status?: string
+          qris_image_url?: string | null
+          qris_payload?: string | null
+          service?: string | null
+          shipping_cost?: number
+          subtotal?: number
+          total?: number
+          updated_at?: string
+          weight_grams?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
