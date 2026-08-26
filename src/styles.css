@@ -59,11 +59,19 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Delivero / UMKM brand tokens */
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-accent-yellow: var(--accent-yellow);
+  --color-accent-yellow-foreground: var(--accent-yellow-foreground);
+  --color-brand-soft: var(--brand-soft);
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
+  --background: oklch(0.97 0.005 270);
   --foreground: oklch(0.129 0.042 264.695);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
@@ -95,6 +103,13 @@
   --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
   --sidebar-border: oklch(0.929 0.013 255.508);
   --sidebar-ring: oklch(0.704 0.04 256.788);
+
+  /* Delivero brand values */
+  --brand: #1c075c;
+  --brand-foreground: #ffffff;
+  --accent-yellow: #ffe51c;
+  --accent-yellow-foreground: #1c075c;
+  --brand-soft: #f0ebff;
 }
 
 .dark {
@@ -130,6 +145,13 @@
   --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
+
+  /* Delivero brand values dark */
+  --brand: #2d1080;
+  --brand-foreground: #ffffff;
+  --accent-yellow: #ffe51c;
+  --accent-yellow-foreground: #1c075c;
+  --brand-soft: #2d1080;
 }
 
 @layer base {
@@ -141,4 +163,12 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
   }
+}
+
+@utility font-display {
+  font-family: var(--font-display);
+}
+
+@utility safe-area-inset-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
