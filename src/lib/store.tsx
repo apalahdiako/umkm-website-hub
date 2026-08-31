@@ -2,121 +2,116 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
 import { toast } from "sonner";
-import type { CartItem, Food } from "./types";
+import type { CartItem, Product } from "./types";
 
 interface StoreState {
   cart: CartItem[];
-  favorites: number[];
-  balance: number;
+  favorites: string[];
 }
 
 interface StoreActions {
-  addToCart: (food: Food, qty?: number, size?: string, extras?: string[]) => void;
-  removeFromCart: (foodId: number) => void;
-  updateQty: (foodId: number, qty: number) => void;
+  addToCart: (product: Product, qty?: number) => void;
+  removeFromCart: (productId: string) => void;
+  updateQty: (productId: string, qty: number) => void;
   clearCart: () => void;
-  toggleFavorite: (id: number) => void;
-  isFavorite: (id: number) => boolean;
-  getCartQty: (foodId: number) => number;
+  toggleFavorite: (id: string) => void;
+  isFavorite: (id: string) => boolean;
+  getCartQty: (productId: string) => number;
   getCartCount: () => number;
   getCartTotal: () => number;
-  topUp: (amount: number) => void;
-  pay: (amount: number) => boolean;
 }
 
 const StoreStateContext = createContext<StoreState | null>(null);
 const StoreActionsContext = createContext<StoreActions | null>(null);
 
+const CART_KEY = "delivero.cart";
+const FAV_KEY = "delivero.favorites";
+
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [favorites, setFavorites] = useState<number[]>([1]);
-  const [balance, setBalance] = useState(1250000);
+  const [favorites, setFavorites] = useState<string[]>([]);
 
-  const addToCart = useCallback(
-    (food: Food, qty = 1, size = "Regular", extras: string[] = []) => {
-      setCart((prev) => {
-        const existing = prev.find((x) => x.food.id === food.id);
-        if (existing) {
-          return prev.map((x) =>
-            x.food.id === food.id ? { ...x, qty: x.qty + qty } : x
-          );
-        }
-        return [...prev, { food, qty, size, extras }];
-      });
-      toast.success(`${food.name} added to cart`);
-    },
-    []
-  );
-
-  const removeFromCart = useCallback((foodId: number) => {
-    setCart((prev) => prev.filter((x) => x.food.id !== foodId));
+  useEffect(() => {
+    try {
+      const c = localStorage.getItem(CART_KEY);
+      if (c) setCart(JSON.parse(c) as CartItem[]);
+      const f = localStorage.getItem(FAV_KEY);
+      if (f) setFavorites(JSON.parse(f) as string[]);
+    } catch {
+      /* ignore */
+    }
   }, []);
 
-  const updateQty = useCallback((foodId: number, qty: number) => {
-    if (qty <= 0) {
-      setCart((prev) => prev.filter((x) => x.food.id !== foodId));
-      return;
+  useEffect(() => {
+    try {
+      localStorage.setItem(CART_KEY, JSON.stringify(cart));
+    } catch {
+      /* ignore */
     }
+  }, [cart]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(FAV_KEY, JSON.stringify(favorites));
+    } catch {
+      /* ignore */
+    }
+  }, [favorites]);
+
+  const addToCart = useCallback((product: Product, qty = 1) => {
+    setCart((prev) => {
+      const existing = prev.find((x) => x.product.id === product.id);
+      if (existing) {
+        return prev.map((x) =>
+          x.product.id === product.id ? { ...x, product, qty: x.qty + qty } : x
+        );
+      }
+      return [...prev, { product, qty }];
+    });
+    toast.success(`${product.nama} masuk keranjang`);
+  }, []);
+
+  const removeFromCart = useCallback((productId: string) => {
+    setCart((prev) => prev.filter((x) => x.product.id !== productId));
+  }, []);
+
+  const updateQty = useCallback((productId: string, qty: number) => {
     setCart((prev) =>
-      prev.map((x) => (x.food.id === foodId ? { ...x, qty } : x))
+      qty <= 0
+        ? prev.filter((x) => x.product.id !== productId)
+        : prev.map((x) => (x.product.id === productId ? { ...x, qty } : x))
     );
   }, []);
 
-  const clearCart = useCallback(() => {
-    setCart([]);
-  }, []);
+  const clearCart = useCallback(() => setCart([]), []);
 
-  const toggleFavorite = useCallback((id: number) => {
+  const toggleFavorite = useCallback((id: string) => {
     setFavorites((prev) =>
       prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]
     );
   }, []);
 
-  const isFavorite = useCallback(
-    (id: number) => favorites.includes(id),
-    [favorites]
-  );
+  const isFavorite = useCallback((id: string) => favorites.includes(id), [favorites]);
 
   const getCartQty = useCallback(
-    (foodId: number) => cart.find((x) => x.food.id === foodId)?.qty ?? 0,
+    (productId: string) => cart.find((x) => x.product.id === productId)?.qty ?? 0,
     [cart]
   );
 
-  const getCartCount = useCallback(
-    () => cart.reduce((a, x) => a + x.qty, 0),
-    [cart]
-  );
+  const getCartCount = useCallback(() => cart.reduce((a, x) => a + x.qty, 0), [cart]);
 
   const getCartTotal = useCallback(
-    () => cart.reduce((a, x) => a + x.food.price * x.qty, 0),
+    () => cart.reduce((a, x) => a + x.product.harga * x.qty, 0),
     [cart]
   );
 
-  const topUp = useCallback((amount: number) => {
-    setBalance((b) => b + amount);
-  }, []);
-
-  const pay = useCallback(
-    (amount: number) => {
-      if (balance < amount) {
-        toast.error("Insufficient balance");
-        return false;
-      }
-      setBalance((b) => b - amount);
-      return true;
-    },
-    [balance]
-  );
-
-  const state = useMemo<StoreState>(
-    () => ({ cart, favorites, balance }),
-    [cart, favorites, balance]
-  );
+  const state = useMemo<StoreState>(() => ({ cart, favorites }), [cart, favorites]);
 
   const actions = useMemo<StoreActions>(
     () => ({
@@ -129,8 +124,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       getCartQty,
       getCartCount,
       getCartTotal,
-      topUp,
-      pay,
     }),
     [
       addToCart,
@@ -142,8 +135,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       getCartQty,
       getCartCount,
       getCartTotal,
-      topUp,
-      pay,
     ]
   );
 
