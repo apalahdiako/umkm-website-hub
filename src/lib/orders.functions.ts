@@ -12,33 +12,23 @@ type Status =
   | "ditolak"
   | "gagal_antar";
 
+type Db = Awaited<ReturnType<typeof admin>>;
+
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
 }
 
-async function hasRole(
-  supabase: { rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown }> },
-  userId: string,
-  role: Role
-) {
-  const { data } = await supabase.rpc("has_role", { _user_id: userId, _role: role });
-  return data === true;
-}
-
-async function requireRole(
-  supabase: Parameters<typeof hasRole>[0],
-  userId: string,
-  roles: Role[]
-) {
-  for (const r of roles) {
-    if (await hasRole(supabase, userId, r)) return r;
-  }
-  throw new Error("Akses ditolak: role tidak sesuai");
+/** userId berasal dari JWT yang sudah diverifikasi middleware */
+async function requireRole(db: Db, userId: string, roles: Role[]): Promise<Role> {
+  const { data } = await db.from("user_roles").select("role").eq("user_id", userId);
+  const found = roles.find((r) => (data ?? []).some((x) => x.role === r));
+  if (!found) throw new Error("Akses ditolak: role tidak sesuai");
+  return found;
 }
 
 async function logStatus(
-  db: Awaited<ReturnType<typeof admin>>,
+  db: Db,
   orderId: string,
   from: Status | null,
   to: Status,
@@ -54,6 +44,13 @@ async function logStatus(
     changed_by_role: role,
     alasan: alasan ?? null,
   });
+}
+
+async function getOrder(db: Db, id: string) {
+  const { data, error } = await db.from("orders").select("*").eq("id", id).maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error("Pesanan tidak ditemukan");
+  return data;
 }
 
 export const createOrder = createServerFn({ method: "POST" })
@@ -129,12 +126,10 @@ export const createOrder = createServerFn({ method: "POST" })
       .single();
     if (oErr) throw new Error(oErr.message);
 
-    await db
-      .from("order_items")
-      .insert(rows.map((r) => ({ ...r, order_id: order.id })));
+    await db.from("order_items").insert(rows.map((r) => ({ ...r, order_id: order.id })));
     await logStatus(db, order.id, null, "menunggu", userId, "customer");
 
-    return { id: order.id as string, order_code: order.order_code as string };
+    return { id: order.id, order_code: order.order_code };
   });
 
 export const topUpWallet = createServerFn({ method: "POST" })
@@ -152,10 +147,7 @@ export const topUpWallet = createServerFn({ method: "POST" })
       .eq("id", context.userId)
       .maybeSingle();
     const saldo = (profile?.saldo ?? 0) + data.amount;
-    const { error } = await db
-      .from("profiles")
-      .update({ saldo })
-      .eq("id", context.userId);
+    const { error } = await db.from("profiles").update({ saldo }).eq("id", context.userId);
     if (error) throw new Error(error.message);
     await db.from("wallet_logs").insert({
       user_id: context.userId,
@@ -166,31 +158,22 @@ export const topUpWallet = createServerFn({ method: "POST" })
     return { saldo };
   });
 
-async function getOrder(db: Awaited<ReturnType<typeof admin>>, id: string) {
-  const { data, error } = await db
-    .from("orders")
-    .select("*")
-    .eq("id", id)
-    .maybeSingle();
-  if (error) throw new Error(error.message);
-  if (!data) throw new Error("Pesanan tidak ditemukan");
-  return data;
-}
-
 /** Kasir menerima pesanan: potong saldo customer + kurangi stok */
 export const kasirAcceptOrder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { orderId: string }) => input)
   .handler(async ({ data, context }) => {
-    const role = await requireRole(context.supabase, context.userId, ["kasir", "admin"]);
     const db = await admin();
+    const role = await requireRole(db, context.userId, ["kasir", "admin"]);
     const order = await getOrder(db, data.orderId);
     if (order.status !== "menunggu") throw new Error("Pesanan sudah diproses");
+    const customerId = order.customer_id;
+    if (!customerId) throw new Error("Pesanan tidak punya customer");
 
     const { data: profile } = await db
       .from("profiles")
       .select("saldo")
-      .eq("id", order.customer_id)
+      .eq("id", customerId)
       .maybeSingle();
     if ((profile?.saldo ?? 0) < order.total)
       throw new Error("Saldo customer tidak cukup, tolak pesanan ini");
@@ -198,9 +181,9 @@ export const kasirAcceptOrder = createServerFn({ method: "POST" })
     await db
       .from("profiles")
       .update({ saldo: (profile?.saldo ?? 0) - order.total })
-      .eq("id", order.customer_id);
+      .eq("id", customerId);
     await db.from("wallet_logs").insert({
-      user_id: order.customer_id,
+      user_id: customerId,
       jenis: "pembayaran",
       jumlah: -order.total,
       order_id: order.id,
@@ -224,14 +207,15 @@ export const kasirAcceptOrder = createServerFn({ method: "POST" })
         .eq("id", it.product_id);
     }
 
+    const now = new Date().toISOString();
     const { error } = await db
       .from("orders")
       .update({
         status: "diproses",
         kasir_id: context.userId,
-        diambil_kasir_at: new Date().toISOString(),
+        diambil_kasir_at: now,
         payment_status: "paid",
-        paid_at: new Date().toISOString(),
+        paid_at: now,
       })
       .eq("id", order.id);
     if (error) throw new Error(error.message);
@@ -246,8 +230,8 @@ export const kasirRejectOrder = createServerFn({ method: "POST" })
     return input;
   })
   .handler(async ({ data, context }) => {
-    const role = await requireRole(context.supabase, context.userId, ["kasir", "admin"]);
     const db = await admin();
+    const role = await requireRole(db, context.userId, ["kasir", "admin"]);
     const order = await getOrder(db, data.orderId);
     if (order.status !== "menunggu") throw new Error("Pesanan sudah diproses");
     await db
@@ -262,8 +246,8 @@ export const kasirReadyOrder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { orderId: string }) => input)
   .handler(async ({ data, context }) => {
-    const role = await requireRole(context.supabase, context.userId, ["kasir", "admin"]);
     const db = await admin();
+    const role = await requireRole(db, context.userId, ["kasir", "admin"]);
     const order = await getOrder(db, data.orderId);
     if (order.status !== "diproses") throw new Error("Status pesanan tidak valid");
     await db
@@ -278,8 +262,8 @@ export const driverTakeOrder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { orderId: string }) => input)
   .handler(async ({ data, context }) => {
-    const role = await requireRole(context.supabase, context.userId, ["driver", "admin"]);
     const db = await admin();
+    const role = await requireRole(db, context.userId, ["driver", "admin"]);
     const order = await getOrder(db, data.orderId);
     if (order.status !== "siap_antar" || order.driver_id)
       throw new Error("Pesanan sudah diambil driver lain");
@@ -304,35 +288,45 @@ export const driverUpdateOrder = createServerFn({ method: "POST" })
     return input;
   })
   .handler(async ({ data, context }) => {
-    const role = await requireRole(context.supabase, context.userId, ["driver", "admin"]);
     const db = await admin();
+    const role = await requireRole(db, context.userId, ["driver", "admin"]);
     const order = await getOrder(db, data.orderId);
     if (order.driver_id !== context.userId && role !== "admin")
       throw new Error("Bukan pesanan Anda");
 
-    const patch: Record<string, unknown> = { status: data.to };
-    if (data.to === "selesai") patch['selesai_at'] = new Date().toISOString();
+    const patch: {
+      status: Status;
+      selesai_at?: string;
+      alasan?: string;
+      payment_status?: string;
+    } = { status: data.to };
+
+    if (data.to === "selesai") patch.selesai_at = new Date().toISOString();
     if (data.to === "gagal_antar") {
       if (!data.alasan?.trim()) throw new Error("Alasan gagal antar wajib diisi");
-      patch['alasan'] = data.alasan;
-      const { data: profile } = await db
-        .from("profiles")
-        .select("saldo")
-        .eq("id", order.customer_id)
-        .maybeSingle();
-      await db
-        .from("profiles")
-        .update({ saldo: (profile?.saldo ?? 0) + order.total })
-        .eq("id", order.customer_id);
-      await db.from("wallet_logs").insert({
-        user_id: order.customer_id,
-        jenis: "refund",
-        jumlah: order.total,
-        order_id: order.id,
-        keterangan: `Refund gagal antar ${order.order_code}`,
-      });
-      patch['payment_status'] = "refunded";
+      patch.alasan = data.alasan;
+      patch.payment_status = "refunded";
+      const customerId = order.customer_id;
+      if (customerId) {
+        const { data: profile } = await db
+          .from("profiles")
+          .select("saldo")
+          .eq("id", customerId)
+          .maybeSingle();
+        await db
+          .from("profiles")
+          .update({ saldo: (profile?.saldo ?? 0) + order.total })
+          .eq("id", customerId);
+        await db.from("wallet_logs").insert({
+          user_id: customerId,
+          jenis: "refund",
+          jumlah: order.total,
+          order_id: order.id,
+          keterangan: `Refund gagal antar ${order.order_code}`,
+        });
+      }
     }
+
     await db.from("orders").update(patch).eq("id", order.id);
     await logStatus(
       db,
@@ -350,8 +344,8 @@ export const setDriverOnline = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { online: boolean }) => input)
   .handler(async ({ data, context }) => {
-    await requireRole(context.supabase, context.userId, ["driver", "admin"]);
     const db = await admin();
+    await requireRole(db, context.userId, ["driver", "admin"]);
     await db
       .from("profiles")
       .update({ status_online: data.online })
