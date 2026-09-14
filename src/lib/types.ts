@@ -8,7 +8,10 @@ export type OrderStatus =
   | "diantar"
   | "selesai"
   | "ditolak"
-  | "gagal_antar";
+  | "gagal_antar"
+  | "hold"
+  | "dibayar"
+  | "void";
 
 export type Category = {
   id: string;
@@ -69,6 +72,9 @@ export const STATUS_LABEL: Record<OrderStatus, string> = {
   selesai: "Selesai",
   ditolak: "Ditolak",
   gagal_antar: "Gagal Antar",
+  hold: "Ditahan (Belum Bayar)",
+  dibayar: "Lunas",
+  void: "Void",
 };
 
 export const STATUS_TONE: Record<OrderStatus, string> = {
@@ -80,6 +86,9 @@ export const STATUS_TONE: Record<OrderStatus, string> = {
   selesai: "bg-emerald-100 text-emerald-700",
   ditolak: "bg-rose-100 text-rose-700",
   gagal_antar: "bg-rose-100 text-rose-700",
+  hold: "bg-amber-100 text-amber-700",
+  dibayar: "bg-emerald-100 text-emerald-700",
+  void: "bg-gray-200 text-gray-600",
 };
 
 export function rupiah(value: number) {
